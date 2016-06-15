@@ -80,24 +80,6 @@ class ParserUtil {
         return encloseWithDoubleQuotes(attribute) + ",";
     }
 
-    public static String getHeadersAsCsv()
-    {
-        StringBuilder builder = new StringBuilder()
-            .append(toCsvForm("FSB Number"))
-            .append(toCsvForm("FSB Title"))
-            .append(toCsvForm("Date Created"))
-            .append(toCsvForm("Date Revised"))
-            .append(toCsvForm("Products Affected"))
-            .append(toCsvForm("Synopsis"))
-            .append(toCsvForm("Systems Affected"))
-            .append(toCsvForm("Problem Description"))
-            .append(toCsvForm("Recommended Actions"))
-            .append(toCsvForm("Resolution"))
-            .append(toCsvForm("References"))
-            .append(encloseWithDoubleQuotes("Procedure"));
-        return builder.toString();
-    }
-
     public static List<String> getHeaders()
     {
         List<String> headers = new ArrayList<>();
@@ -119,10 +101,5 @@ class ParserUtil {
     public static <T> String encloseWithDoubleQuotes(T text)
     {
         return "\""+text+"\"";
-    }
-
-    public static String escapeDoubleQuotes(String text)
-    {
-        return text.replaceAll("\"","\\\"");
     }
 }

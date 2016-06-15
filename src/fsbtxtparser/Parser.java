@@ -3,8 +3,10 @@ package fsbtxtparser;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
+import java.beans.Statement;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
@@ -41,7 +43,7 @@ public class Parser {
                 }
             }
             File outputFile = new File(directory.getAbsolutePath()+"/"+csvFileName);
-            parser.writeToCsv(fsbList, directory.getAbsolutePath()+"/"+csvFileName);
+            parser.writeToCsv(fsbList, outputFile);
         }
         catch (IOException e)
         {
@@ -53,8 +55,9 @@ public class Parser {
     {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
         String line;
-        String fsbClass = "fsbtxtparser.Fsb";
-        Fsb fsb = (Fsb) Class.forName(fsbClass).newInstance();
+        String fsbClassName = "fsbtxtparser.Fsb";
+        Class fsbClass = Class.forName(fsbClassName);
+        Fsb fsb = (Fsb) fsbClass.newInstance();
         while((line = bufferedReader.readLine()) != null && !line.trim().startsWith(ParserUtil.END_OF_PARSING))
         {
             ParserUtil.Token token;
@@ -63,9 +66,10 @@ public class Parser {
             {
                 String fieldValue = line.replaceFirst(token.getPatternString(), "") + getNextLineIfMultilineValue(bufferedReader, token);
                 try {
-                    Field field = fsb.getClass().getDeclaredField(token.attributeName);
-                    field.set(fsb, removeNonPrintableChars(fieldValue));
-                } catch (NoSuchFieldException e) {
+                    String setterMethodName = "set" + Character.toUpperCase(token.attributeName.charAt(0)) + token.attributeName.substring(1);
+                    Method method = fsbClass.getDeclaredMethod(setterMethodName, new Class[]{String.class});
+                    method.invoke(fsb, removeNonPrintableChars(fieldValue));
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -93,27 +97,17 @@ public class Parser {
         return value.trim();
     }
 
-    private void writeToCsv(ArrayList<Fsb> fsbList, String fileName) throws IOException
-    {
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileName));
-        String header = ParserUtil.getHeadersAsCsv() + "\n";
-        bufferedWriter.write(header, 0, header.length());
-        for(Fsb fsb: fsbList)
-        {
-            String content = fsb.toStringCsv() + "\n";
-            bufferedWriter.write(content, 0, content.length());
-        }
-        bufferedWriter.close();
-    }
-
     private void writeToCsv(ArrayList<Fsb> fsbList, File file) throws IOException
     {
         FileWriter fileWriter = new FileWriter(file);
         CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT);
         try {
-            csvPrinter.print(ParserUtil.getHeaders());
+            csvPrinter.printRecord(ParserUtil.getHeaders());
             for (Fsb fsb : fsbList) {
-                csvPrinter.print(fsb.toCsv());
+                if(fsb.number != null && fsb.number.trim().length() > 0)
+                {
+                    csvPrinter.printRecord(fsb.toCsv());
+                }
             }
         } finally {
             try {
