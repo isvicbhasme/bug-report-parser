@@ -19,14 +19,14 @@ class ParserUtil {
         fsbTitle("^\\W*FSB Title", "title", 200),
         fsbDateCreated("^\\W*Date Created", "dateCreated", 50),
         fsbDateRevised("^\\W*(Date Revised|Date Last Revised)", "dateRevised", 50),
-        fsbProductsAffected("^\\W*(Product\\(s\\) Affected|Product\\(s\\)$|Affected$)", "productsAffected", 400),
-        fsbSynopsis("^\\W*Synopsis", "synopsis", 1000),
-        fsbAffectedSystems("^\\W*(Systems Affected|Products / Systems Affected)", "affectedSystems", 400),
-        fsbProblemDescription("^\\W*Problem Description", "description", 1000),
-        fsbRecomendedActions("^\\W*Recommended Actions", "recommendedActions", 1000),
-        fsbResolution("^\\W*Resolution", "resolution", 400),
-        fsbReferences("^\\W*References", "references", 400),
-        fsbProcedure("^\\W*(Procedure|Procedures)", "procedure", 15000);
+        fsbProductsAffected("^\\W*(Product\\(s\\) Affected|Product\\(s\\)$|Affected$)", "productsAffected", 600),
+        fsbSynopsis("^\\W*Synopsis", "synopsis", 2000),
+        fsbAffectedSystems("^\\W*(Systems Affected|Products / Systems Affected)", "affectedSystems", 600),
+        fsbProblemDescription("^\\W*Problem Description", "description", 2000),
+        fsbRecomendedActions("^\\W*Recommended Actions", "recommendedActions", 2000),
+        fsbResolution("^\\W*Resolution", "resolution", 800),
+        fsbReferences("^\\W*References", "references", 800),
+        fsbProcedure("^\\W*(Procedure|Procedures)", "procedure", 20000);
 
         public String attributeName = "";
         private String regexString = "";

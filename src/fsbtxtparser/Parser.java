@@ -8,12 +8,15 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses FSB txt files to csv data
  */
 public class Parser {
     private final static String FSB_DOC_EXTN = ".txt";
+    private Pattern numberedListPattern = Pattern.compile("^\\d+\\.");
 
     public static void main(String[] args)
     {
@@ -64,7 +67,8 @@ public class Parser {
             line = line.trim();
             if((token = ParserUtil.Token.doesStringStartWithToken(line)) != null)
             {
-                String fieldValue = line.replaceFirst(token.getPatternString(), "") + getNextLineIfMultilineValue(bufferedReader, token);
+                String fieldValue = replaceNumberedListStartWithBullet(line.replaceFirst(token.getPatternString(), ""))
+                        + getNextLineIfMultilineValue(bufferedReader, token);
                 try {
                     String setterMethodName = "set" + Character.toUpperCase(token.attributeName.charAt(0)) + token.attributeName.substring(1);
                     Method method = fsbClass.getDeclaredMethod(setterMethodName, new Class[]{String.class});
@@ -90,7 +94,7 @@ public class Parser {
                 && !line.startsWith(ParserUtil.END_OF_PARSING))  // 'line' is not the END_OF_PARSING DELIMITER
                 && value.length() + line.length() < MAX_NUM_OF_CHARS) // value cannot be more than marked value
         {
-            value = value + " " + line; //TODO: If line startsWith a bullet then line should be prefixed with \n
+            value = value + " " + replaceNumberedListStartWithBullet(line); //TODO: If line startsWith a bullet then line should be prefixed with \n
             bufferedReader.mark(MAX_NUM_OF_CHARS - value.length());
         }
         bufferedReader.reset();
@@ -130,7 +134,21 @@ public class Parser {
             {
                 stringBuilder.append((char)character);
             }
+            else if(character == -30)
+            {
+                stringBuilder.append("<bullet>");
+            }
         }
         return stringBuilder.toString().trim();
+    }
+
+    private String replaceNumberedListStartWithBullet(String phrase)
+    {
+        Matcher matcher = numberedListPattern.matcher(phrase);
+        if(matcher.find())
+        {
+            phrase = "<numbered-list>"+phrase;
+        }
+        return phrase;
     }
 }
